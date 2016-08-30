@@ -1,0 +1,33 @@
+{
+  "name": "hmif",
+  "version": "0.0.0",
+  "description": "Universal Homematic RPC interface module",
+  "main": "hmif.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hobbyquaker/homematic-interface"
+  },
+  "keywords": [
+    "mqtt",
+    "smarthome",
+    "homematic",
+    "bidcos",
+    "eq-3"
+  ],
+  "author": "Sebastian Raff <hq@ccu.io> (https://hobbyquaker.github.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hobbyquaker/homematic-interface/issues"
+  },
+  "homepage": "https://github.com/hobbyquaker/homematic-interface",
+  "dependencies": {
+    "async": "^2.0.1",
+    "binrpc": "^1.0.0",
+    "homematic-xmlrpc": "^1.0.2",
+    "mqtt": "^1.13.0",
+    "persist-json": "^1.0.1"
+  }
+}
