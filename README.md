@@ -2,7 +2,7 @@
 
 [![License][mit-badge]][mit-url]
 [![NPM version](https://badge.fury.io/js/hmif.svg)](http://badge.fury.io/js/hmif)
-[![Dependency Status](https://img.shields.io/gemnasium/hobbyquaker/hmif.svg?maxAge=2592000)](https://gemnasium.com/github.com/hobbyquaker/hmif)
+[![Dependency Status](https://img.shields.io/gemnasium/hobbyquaker/homematic-interface.svg?maxAge=2592000)](https://gemnasium.com/github.com/hobbyquaker/homematic-interface)
 
 > Universal Homematic RPC interface module
 
