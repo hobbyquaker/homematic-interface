@@ -426,6 +426,125 @@ function Hmif(config, status, log) {
         });
     }
 
+
+
+    this.rpc = function rpc(iface, method, params, callback) {
+        this._iface[iface].rpc.methodCall(method, params, function (err, res) {
+            if (typeof callback === 'function') callback(err, res);
+        });
+    };
+
+    this.rega = function rega(script, callback) {
+
+        var post_options = {
+            host: this.config.address,
+            port: '8181',
+            path: '/rega.exe',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': script.length
+            }
+        };
+        var post_req = http.request(post_options, function(res) {
+            var data = '';
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
+                data += chunk.toString();
+            });
+            res.on('end', function () {
+                var pos = data.lastIndexOf("<xml>");
+                var stdout = unescape(data.substring(0, pos));
+                try {
+                    var result = stdout;
+                    callback(null, result);
+                } catch (e) {
+                    callback(e)
+
+                }
+            });
+        });
+
+        post_req.on('error', function (e) {
+            callback(e);
+        });
+
+        post_req.write(script);
+        post_req.end();
+
+
+
+    };
+
+    this.regaFile = function regaFile(file, callback) {
+        var that = this;
+        fs.readFile(path.join(__dirname, file), 'utf8', function (err, script) {
+            if (err) {
+                callback(err);
+                return false;
+            }
+
+            that.rega(script, function (err, res) {
+                if (!err) {
+                    try {
+                        callback(null, JSON.parse(res));
+                    } catch (e) {
+                        callback(e);
+                    }
+                } else {
+                    callback(err);
+                }
+            });
+
+        });
+    };
+
+    this._findIface = function findIface(address) {
+        for (var i in this._iface) {
+            for (var a in this._iface[i].devices) {
+                if (a === address) return i;
+            }
+        }
+    };
+
+    this.setValue = function rpc(address, datapoint, value, callback) {
+
+        var iface = this._findIface(address);
+        if (!iface) {
+            callback(new Error('no suitable interface found for address ' + address));
+        } else {
+            this._iface[iface].rpc.methodCall('setValue', [address, datapoint, value], function (err, res) {
+                if (typeof callback === 'function') callback(err, res);
+            });
+        }
+    };
+
+    this.unsubscribe = function unsubscribe(callback) {
+        var that = this;
+        var calls = [];
+
+        if (that._iface) {
+
+            Object.keys(that._iface).forEach(function (i) {
+                var url = 'http://' + that.config.listenAddress + ':' + that.config.listenPort;
+                var params = [url, ''];
+
+                log.debug('rpc >', i, 'init', params);
+                calls.push(function (cb) {
+                    that._iface[i].rpc.methodCall('init', params, function (err, res) {
+                        log.debug('re  <', i, err, JSON.stringify(res));
+                        cb();
+                    });
+                });
+            });
+            async.series(calls, callback);
+        } else {
+            callback();
+        }
+    };
+
+
+
     createClients(function () {
         getIfaceInfos(function () {
             log.debug('getIfaces done');
@@ -439,121 +558,7 @@ function Hmif(config, status, log) {
 
 }
 
-Hmif.prototype.rpc = function rpc(iface, method, params, callback) {
-    this._iface[iface].rpc.methodCall(method, params, function (err, res) {
-        if (typeof callback === 'function') callback(err, res);
-    });
-};
 
-
-Hmif.prototype.rega = function rega(script, callback) {
-
-    var post_options = {
-        host: this.config.address,
-        port: '8181',
-        path: '/rega.exe',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': script.length
-        }
-    };
-    var post_req = http.request(post_options, function(res) {
-        var data = '';
-        res.setEncoding('utf8');
-        res.on('data', function (chunk) {
-            data += chunk.toString();
-        });
-        res.on('end', function () {
-            var pos = data.lastIndexOf("<xml>");
-            var stdout = unescape(data.substring(0, pos));
-            try {
-                var result = stdout;
-                callback(null, result);
-            } catch (e) {
-                callback(e)
-
-            }
-        });
-    });
-
-    post_req.on('error', function (e) {
-        callback(e);
-    });
-
-    post_req.write(script);
-    post_req.end();
-
-
-
-};
-
-Hmif.prototype.regaFile = function regaFile(file, callback) {
-    var that = this;
-    fs.readFile(path.join(__dirname, file), 'utf8', function (err, script) {
-        if (err) {
-            callback(err);
-            return false;
-        }
-
-        that.rega(script, function (err, res) {
-            if (!err) {
-                try {
-                    callback(null, JSON.parse(res));
-                } catch (e) {
-                    callback(e);
-                }
-            } else {
-                callback(err);
-            }
-        });
-
-    });
-};
-
-Hmif.prototype._findIface = function findIface(address) {
-    for (var i in this._iface) {
-        for (var a in this._iface[i].devices) {
-            if (a === address) return i;
-        }
-    }
-};
-
-Hmif.prototype.setValue = function rpc(address, datapoint, value, callback) {
-
-    var iface = this._findIface(address);
-    if (!iface) {
-        callback(new Error('no suitable interface found for address ' + address));
-    } else {
-        this._iface[iface].rpc.methodCall('setValue', [address, datapoint, value], function (err, res) {
-            if (typeof callback === 'function') callback(err, res);
-        });
-    }
-};
-
-Hmif.prototype.unsubscribe = function unsubscribe(callback) {
-    var that = this;
-    var calls = [];
-
-    if (that._iface) {
-
-        Object.keys(that._iface).forEach(function (i) {
-            var url = 'http://' + that.config.listenAddress + ':' + that.config.listenPort;
-            var params = [url, ''];
-
-            log.debug('rpc >', i, 'init', params);
-            calls.push(function (cb) {
-                that._iface[i].rpc.methodCall('init', params, function (err, res) {
-                    log.debug('re  <', i, err, JSON.stringify(res));
-                    cb();
-                });
-            });
-        });
-        async.series(calls, callback);
-    } else {
-        callback();
-    }
-};
 
 util.inherits(Hmif, EventEmitter);
 
