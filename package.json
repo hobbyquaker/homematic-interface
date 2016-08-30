@@ -1,6 +1,6 @@
 {
   "name": "hmif",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Universal Homematic RPC interface module",
   "main": "hmif.js",
   "scripts": {
@@ -26,6 +26,7 @@
   "dependencies": {
     "async": "^2.0.1",
     "binrpc": "^1.0.0",
+    "checkservice": "^1.0.1",
     "homematic-xmlrpc": "^1.0.2",
     "persist-json": "^1.0.1"
   }
