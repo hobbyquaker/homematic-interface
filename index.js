@@ -29,9 +29,6 @@ function Hmif(config, status, log) {
 
     this.config = config;
 
-    if (!this.config.verbosity) this.config.verbosity = 'silent';
-
-    log.setLevel(this.config.verbosity);
     log.info(pkg.name + ' ' + pkg.version + ' starting');
 
     this._iface = {};
