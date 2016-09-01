@@ -126,13 +126,13 @@ function Hmif(config, status, log) {
                 that._values[params[0]][params[1]] = {};
             }
             if (params[3] !== that._values[params[0]][params[1]][params[2]]) {
-                log.info('rpc < change', err, params, that._names[params[1]]);
+                log.debug('rpc < change', err, params, that._names[params[1]]);
 
-                if (params[1].indexOf(':') === -1) {
+                //if (params[1].indexOf(':') === -1) {
                     that.emit('change', params, meta(params));
-                } else {
-                    that.emit('change', params, meta(params));
-                }
+                //} else {
+                //    that.emit('change', params, meta(params));
+                //}
             }
             that._values[params[0]][params[1]][params[2]] = params[3];
             if (params[1].indexOf(':') === -1) {
