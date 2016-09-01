@@ -349,7 +349,10 @@ function Hmif(config, status, log) {
                 log.debug('rpc >', i, 'init', params);
                 that._iface[i].rpc.methodCall('init', params, function (err, res) {
                     log.debug('re  <', i, err, JSON.stringify(res));
-                    if (!err) that.status.homematic.interfaces[i].init = true;
+                    if (!err) {
+                        log.info('init succesful ' + i + ' (' + that._iface[i].host + ':' + that._iface[i].port + ')');
+                        that.status.homematic.interfaces[i].init = true;
+                    }
                     checkEvents(i);
                     cb();
                 });
